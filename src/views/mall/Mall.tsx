@@ -42,6 +42,22 @@ const Mall = () => {
     },
   });
 
+  // use effect to run filter rather in callback
+  React.useEffect(() => {
+    filter(0, {
+      category: selectedCategories ?? [],
+      price: selectedPriceRange ?? [],
+    });
+  }, [selectedCategories, selectedPriceRange, filter]);
+
+  // cache callback
+  const handleLoadMoreClick = React.useCallback(() => {
+    loadMore(pagedProducts?.data?.length ?? 0, {
+      category: selectedCategories ?? [],
+      price: selectedPriceRange ?? [],
+    });
+  }, [pagedProducts, selectedCategories, selectedPriceRange, loadMore]);
+
   return (
     <Wrapper>
       <Aside>
@@ -50,20 +66,12 @@ const Mall = () => {
             onSelectCategories={(ids) => {
               setSelectedCategories(ids);
               setHasMore(true);
-              filter(0, {
-                category: ids,
-                price: selectedPriceRange ?? [],
-              });
             }}
           />
           <PriceFilter
             onSelectPriceRange={(range) => {
               setSelectedPriceRange(range);
               setHasMore(true);
-              filter(0, {
-                category: selectedCategories ?? [],
-                price: range,
-              });
             }}
           />
         </Space>
@@ -84,15 +92,7 @@ const Mall = () => {
         )}
         {hasMore && !loading ? (
           <HasMoreWrapper>
-            <Button
-              loading={loadingMore}
-              onClick={() =>
-                loadMore(pagedProducts?.data?.length ?? 0, {
-                  category: selectedCategories ?? [],
-                  price: selectedPriceRange ?? [],
-                })
-              }
-            >
+            <Button loading={loadingMore} onClick={handleLoadMoreClick}>
               加载更多
             </Button>
           </HasMoreWrapper>
